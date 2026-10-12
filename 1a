@@ -1,0 +1,53 @@
+import weka.core.Instances;
+import weka.core.converters.ConverterUtils.DataSource;
+import weka.classifiers.trees.J48;
+import weka.classifiers.Evaluation;
+import java.util.Random;
+
+public class WekaClassification {
+
+    public static void main(String[] args) throws Exception {
+
+        // Load the dataset
+        DataSource source =
+                new DataSource("weather.nominal.arff");
+        Instances data = source.getDataSet();
+
+        // Set the class attribute
+        data.setClassIndex(data.numAttributes() - 1);
+
+        // Create the classifier
+        J48 classifier = new J48();
+
+        // Build the classifier
+        classifier.buildClassifier(data);
+
+        // Evaluate using 10-fold cross-validation
+        Evaluation evaluation = new Evaluation(data);
+        evaluation.crossValidateModel(
+                classifier, data, 10, new Random(1));
+
+        // Display the decision tree
+        System.out.println("=== J48 Decision Tree ===");
+        System.out.println(classifier);
+
+        // Display evaluation results
+        System.out.println("=== Evaluation Results ===");
+        System.out.println(evaluation.toSummaryString());
+
+        // Display detailed accuracy by class
+        System.out.println("=== Class Details ===");
+        System.out.println(evaluation.toClassDetailsString());
+
+        // Display confusion matrix
+        System.out.println("=== Confusion Matrix ===");
+        double[][] matrix = evaluation.confusionMatrix();
+
+        for (double[] row : matrix) {
+            for (double value : row) {
+                System.out.print(value + "\t");
+            }
+            System.out.println();
+        }
+    }
+}
